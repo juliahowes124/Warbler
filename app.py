@@ -7,6 +7,7 @@ from functools import wraps
 
 from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
 from models import db, connect_db, User, Message, Like
+from admin import ADMINPASSWORD
 
 CURR_USER_KEY = "curr_user"
 
@@ -84,6 +85,7 @@ def signup():
                 password=form.password.data,
                 email=form.email.data,
                 image_url=form.image_url.data or User.image_url.default.arg,
+                admin=form.admin_password.data == ADMINPASSWORD 
             )
             db.session.add(user)
             db.session.commit()
