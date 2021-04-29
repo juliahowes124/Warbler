@@ -156,7 +156,13 @@ def users_show(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user)
+    is_self = g.user and user.id == g.user.id
+    is_following = g.user and g.user.is_following(user)
+    is_public = user.private
+    can_view = is_self or is_following or is_public
+
+    return render_template('users/show.html', user=user, can_view=can_view)
+    
 
 @app.route('/users/<int:user_id>/following')
 @check_authenticated

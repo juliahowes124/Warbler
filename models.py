@@ -96,6 +96,11 @@ class User(db.Model):
         default=False
     )
 
+    private = db.Column(
+        db.Boolean,
+        default=False
+    )
+
     messages = db.relationship('Message', order_by='Message.timestamp.desc()')
 
     liked_messages = db.relationship('Message', secondary="likes")

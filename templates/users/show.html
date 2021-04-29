@@ -2,6 +2,10 @@
 {% block user_details %}
   <div class="col-sm-6">
     {% from 'cards.html' import message_card %}
-    {{ message_card(user.messages)}}
+    {% if can_view %}
+      {{ message_card(user.messages)}}
+    {% else %}
+      This user's account is private.
+    {% endif %}
   </div>
 {% endblock %}
