@@ -187,7 +187,8 @@ def add_follow(follow_id):
 
     followed_user = User.query.get_or_404(follow_id)
     
-    if followed_user.is_private:
+    # FIX THIS LATER - RM NOT!!!!!
+    if not followed_user.is_private:
         g.user.following_requests.append(followed_user)
         db.session.commit()
         return redirect(f"/users/{follow_id}")

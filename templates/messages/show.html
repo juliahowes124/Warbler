@@ -24,6 +24,10 @@
                         action="/users/stop-following/{{ message.user.id }}">
                     <button class="btn btn-primary">Unfollow</button>
                   </form>
+                {% elif g.user.is_pending_follow(user) %}
+                  <form>
+                    <button class="btn btn-secondary btn-sm" disabled="true">Requested</button>
+                  </form>
                 {% else %}
                   <form method="POST" action="/users/follow/{{ message.user.id }}">
                     <button class="btn btn-outline-primary btn-sm">Follow</button>
