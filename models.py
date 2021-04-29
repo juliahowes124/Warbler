@@ -9,21 +9,39 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 
-class Follows(db.Model):
+class Follow(db.Model):
     """Connection of a follower <-> followed_user."""
 
     __tablename__ = 'follows'
 
-    user_being_followed_id = db.Column(
+    followee = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete="cascade"),
         primary_key=True,
     )
 
-    user_following_id = db.Column(
+    follower = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete="cascade"),
         primary_key=True,
+    )
+
+
+class Request(db.Model):
+    """ follow request from sender to recipient """
+
+    __tablename__ = 'requests'
+
+    sender = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True
+    )
+
+    recipient = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True
     )
 
 
@@ -43,7 +61,6 @@ class Like(db.Model):
         db.ForeignKey('messages.id', ondelete="cascade"),
         primary_key=True,
     )
-
 
 
 class User(db.Model):
@@ -96,7 +113,7 @@ class User(db.Model):
         default=False
     )
 
-    private = db.Column(
+    is_private = db.Column(
         db.Boolean,
         default=False
     )
@@ -108,15 +125,29 @@ class User(db.Model):
     followers = db.relationship(
         "User",
         secondary="follows",
-        primaryjoin=(Follows.user_being_followed_id == id),
-        secondaryjoin=(Follows.user_following_id == id)
+        primaryjoin=(Follow.followee == id),
+        secondaryjoin=(Follow.follower == id)
     )
 
     following = db.relationship(
         "User",
         secondary="follows",
-        primaryjoin=(Follows.user_following_id == id),
-        secondaryjoin=(Follows.user_being_followed_id == id)
+        primaryjoin=(Follow.follower == id),
+        secondaryjoin=(Follow.followee == id)
+    )
+
+    following_requests = db.relationship(
+        "User",
+        secondary="requests",
+        primaryjoin=(Request.sender == id),
+        secondaryjoin=(Request.recipient == id)
+    )
+
+    follower_requests = db.relationship(
+        "User",
+        secondary="requests",
+        primaryjoin=(Request.recipient == id),
+        secondaryjoin=(Request.sender == id)
     )
 
     def __repr__(self):

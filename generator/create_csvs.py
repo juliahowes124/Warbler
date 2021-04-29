@@ -16,7 +16,7 @@ MAX_WARBLER_LENGTH = 140
 
 USERS_CSV_HEADERS = ['email', 'username', 'image_url', 'password', 'bio', 'header_image_url', 'location']
 MESSAGES_CSV_HEADERS = ['text', 'timestamp', 'user_id']
-FOLLOWS_CSV_HEADERS = ['user_being_followed_id', 'user_following_id']
+FOLLOWS_CSV_HEADERS = ['followee', 'follower']
 
 NUM_USERS = 300
 NUM_MESSAGES = 1000
@@ -74,4 +74,4 @@ with open('generator/follows.csv', 'w') as follows_csv:
     users_writer.writeheader()
 
     for followed_user, follower in sample(all_pairs, NUM_FOLLWERS):
-        users_writer.writerow(dict(user_being_followed_id=followed_user, user_following_id=follower))
+        users_writer.writerow(dict(followee=followed_user, follower=follower))

@@ -8,7 +8,7 @@
 import os
 from unittest import TestCase
 
-from models import db, User, Message, Follows
+from models import db, User, Message, Follow
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 
@@ -39,7 +39,7 @@ class UserModelTestCase(TestCase):
 
         User.query.delete()
         Message.query.delete()
-        Follows.query.delete()
+        Follow.query.delete()
 
         u1 = User(
             email="test@test.com",
@@ -80,7 +80,7 @@ class UserModelTestCase(TestCase):
     def test_is_following(self):
         """Is this user following other user?"""
       
-        follow = Follows(user_being_followed_id=self.u2.id, user_following_id=self.u1.id)
+        follow = Follow(followee=self.u2.id, follower=self.u1.id)
         db.session.add(follow)
         db.session.commit()
 
@@ -90,7 +90,7 @@ class UserModelTestCase(TestCase):
     
     def test_is_followed_by(self):
         """Is this user followed by other user?"""
-        follow = Follows(user_being_followed_id=self.u2.id, user_following_id=self.u1.id)
+        follow = Follow(followee=self.u2.id, follower=self.u1.id)
         db.session.add(follow)
         db.session.commit()
 

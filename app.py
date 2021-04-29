@@ -158,7 +158,7 @@ def users_show(user_id):
 
     is_self = g.user and user.id == g.user.id
     is_following = g.user and g.user.is_following(user)
-    is_public = user.private
+    is_public = user.is_private
     can_view = is_self or is_following or is_public
 
     return render_template('users/show.html', user=user, can_view=can_view)
@@ -186,6 +186,12 @@ def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
 
     followed_user = User.query.get_or_404(follow_id)
+    
+    if followed_user.is_private:
+        g.user.following_requests.append(followed_user)
+        db.session.commit()
+        return redirect(f"/users/{follow_id}")
+
     g.user.following.append(followed_user)
     db.session.commit()
 
