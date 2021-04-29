@@ -1,0 +1,24 @@
+{% extends 'users/detail.html' %}
+{% block user_details %}
+  <div class="col-sm-6">
+    <ul class="list-group" id="messages">
+
+      {% for request in user.follower_requests %}
+
+        <li class="list-group-item">
+          <div class="message-area">
+            <div>@{{ request.username }}</div>
+            <form method="POST" action="/requests/accept/{{request.id}}">
+                <button>Accept</button>
+            </form>
+            <form method="POST" action="/requests/delete/{{request.id}}">
+                <button>Delete</button>
+            </form>
+          </div>
+        </li>
+
+      {% endfor %}
+
+    </ul>
+  </div>
+{% endblock %}

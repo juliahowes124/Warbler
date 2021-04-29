@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from functools import wraps
 
 from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
-from models import db, connect_db, User, Message, Like
+from models import db, connect_db, User, Message, Like, Request
 from admin import ADMINPASSWORD
 
 CURR_USER_KEY = "curr_user"
@@ -320,7 +320,34 @@ def add_liked_message(message_id):
 @app.route('/users/<int:user_id>/likes')
 def show_liked_messages(user_id):
     user = User.query.get_or_404(user_id)
-    return render_template('users/likes.html', user=user)    
+    return render_template('users/likes.html', user=user)   
+
+
+@app.route('/users/<int:user_id>/notifications')
+def show_notifications(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('users/notifications.html', user=user)  
+
+
+@app.route("/requests/accept/<int:sender_id>", methods=["POST"])
+def accept_follow_request(sender_id):
+    sender = User.query.get_or_404(sender_id)
+    req = Request.query.get_or_404([sender_id, g.user.id])
+    g.user.followers.append(sender)
+    db.session.delete(req)
+    db.session.commit()
+    return redirect(f"/users/{g.user.id}/notifications")
+
+
+@app.route("/requests/delete/<int:sender_id>", methods=["POST"])
+def delete_follow_request(sender_id):
+    req = Request.query.get_or_404([sender_id, g.user.id])
+
+    db.session.delete(req)
+    db.session.commit()
+
+    return redirect(f"/users/{g.user.id}/notifications")
+
 
 
 ##############################################################################
