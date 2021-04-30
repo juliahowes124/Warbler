@@ -15,7 +15,7 @@
             {% endwith %}
             <div class="ml-auto">
               {% if g.user.id == user.id or g.user.is_admin %}
-                <a href="/users/profile" class="btn btn-outline-secondary">Edit Profile</a>
+                <a href="/users/{{user.id}}/profile" class="btn btn-outline-secondary">Edit Profile</a>
                 <form method="POST" action="/users/{{ user.id }}/delete" class="form-inline">
                   <button class="btn btn-outline-danger ml-2">Delete Profile</button>
                 </form>

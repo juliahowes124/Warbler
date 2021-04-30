@@ -170,7 +170,7 @@ def users_show(user_id):
 
     is_self = g.user and user.id == g.user.id
     is_following = g.user and g.user.is_following(user)
-    is_public = user.is_private
+    is_public = not user.is_private
     is_admin = g.user.is_admin
     can_view = is_self or is_following or is_public or is_admin
 
@@ -256,6 +256,7 @@ def profile(user_id):
             user.image_url = form.image_url.data or None
             user.header_image_url = form.header_image_url.data or None
             user.bio = form.bio.data
+            user.is_private = form.is_private.data
             user.is_admin = form.admin_password == ADMINPASSWORD
 
             db.session.commit()
@@ -385,7 +386,7 @@ def accept_follow_request(sender_id):
     g.user.followers.append(sender)
     db.session.delete(req)
     db.session.commit()
-    return redirect(f"/users/{g.user.id}/notifications")
+    return redirect("/notifications")
 
 
 @app.route("/requests/delete/<int:sender_id>", methods=["POST"])
@@ -396,7 +397,7 @@ def delete_follow_request(sender_id):
     db.session.delete(req)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/notifications")
+    return redirect("/notifications")
 
 
 
