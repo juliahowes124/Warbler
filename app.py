@@ -39,6 +39,17 @@ def check_authenticated(func):
         return func(*args, **kwargs)
     return wrap
 
+
+def check_correct_user_or_admin(func):
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        if not g.user.is_admin and kwargs.get("user_id") != g.user.id:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
+        return func(*args, **kwargs)
+    return wrap
+
+
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -85,7 +96,7 @@ def signup():
                 password=form.password.data,
                 email=form.email.data,
                 image_url=form.image_url.data or User.image_url.default.arg,
-                admin=form.admin_password.data == ADMINPASSWORD 
+                is_admin=form.admin_password.data == ADMINPASSWORD 
             )
             db.session.add(user)
             db.session.commit()
@@ -164,6 +175,7 @@ def users_show(user_id):
     return render_template('users/show.html', user=user, can_view=can_view)
     
 
+#TODO DONT SHOW FOLLOWING IF PRIVATE ACCOUNT AND NOT FOLLOWING
 @app.route('/users/<int:user_id>/following')
 @check_authenticated
 def show_following(user_id):
@@ -172,6 +184,7 @@ def show_following(user_id):
     return render_template('users/following.html', user=user)
 
 
+#TODO DONT SHOW FOLLOWERS IF PRIVATE ACCOUNT AND NOT FOLLOWING
 @app.route('/users/<int:user_id>/followers')
 @check_authenticated
 def users_followers(user_id):
@@ -210,9 +223,11 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
-
-@app.route('/users/profile', methods=["GET", "POST"])
-def profile():
+#TODO: ALLOW TO MAKE USER ADMIN WITH ADMIN PASSWORD, UPDATE ROUTE IN TEMPLATE
+@app.route('/users/<int:user_id>/profile', methods=["GET", "POST"])
+@check_authenticated
+@check_correct_user_or_admin
+def profile(user_id):
     """Update profile for current user."""
     user = g.user
     form = UserEditForm(obj=user)
@@ -235,20 +250,27 @@ def profile():
     return render_template("/users/edit.html", form=form)
 
 
-
-
-@app.route('/users/delete', methods=["POST"])
+#TODO: UPDATE ROUTE IN TEMPLATE
+@app.route('/users/<int:user_id>/delete', methods=["POST"])
 @check_authenticated
-def delete_user():
+@check_correct_user_or_admin
+def delete_user(user_id):
     """Delete user."""
+    user = User.query.get_or_404(user_id)
 
-    do_logout()
+    if g.user.id == user.id:
+        do_logout()
 
-    db.session.delete(g.user)
+    db.session.delete(user)
     db.session.commit()
 
     return redirect("/signup")
 
+
+@app.route('/notifications')
+@check_authenticated
+def show_notifications():
+    return render_template('users/notifications.html', user=g.user)  
 
 ##############################################################################
 # Messages routes:
@@ -271,7 +293,7 @@ def messages_add():
         return redirect(f"/users/{g.user.id}")
 
 
-
+#TODO ONLY ALLOW ADMINS OR FOLLOWERS OR IF PUBLIC
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
@@ -280,21 +302,21 @@ def messages_show(message_id):
     return render_template('messages/show.html', message=msg)
 
 
-@app.route('/messages/<int:message_id>/delete', methods=["POST"])
+#TODO UPDATE ROUTE IN TEMPLATES
+@app.route('/users/<int:user_id>/messages/<int:message_id>/delete', methods=["POST"])
 @check_authenticated
-def messages_destroy(message_id):
+@check_correct_user_or_admin
+def messages_destroy(user_id, message_id):
     """Delete a message."""
 
     msg = Message.query.get(message_id)
-    if msg.user_id != g.user.id:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     db.session.delete(msg)
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
 
+#TODO ONLY ALLOW ADMINS OR FOLLOWERS OR IF PUBLIC
 @app.route('/messages/<int:message_id>/likes', methods=['POST'])
 @check_authenticated
 def add_liked_message(message_id):
@@ -317,19 +339,15 @@ def add_liked_message(message_id):
     
     return redirect('/')
 
+#TODO ONLY ALLOW ADMINS OR FOLLOWERS OR IF PUBLIC
 @app.route('/users/<int:user_id>/likes')
 def show_liked_messages(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('users/likes.html', user=user)   
 
 
-@app.route('/users/<int:user_id>/notifications')
-def show_notifications(user_id):
-    user = User.query.get_or_404(user_id)
-    return render_template('users/notifications.html', user=user)  
-
-
 @app.route("/requests/accept/<int:sender_id>", methods=["POST"])
+@check_authenticated
 def accept_follow_request(sender_id):
     sender = User.query.get_or_404(sender_id)
     req = Request.query.get_or_404([sender_id, g.user.id])
@@ -340,6 +358,7 @@ def accept_follow_request(sender_id):
 
 
 @app.route("/requests/delete/<int:sender_id>", methods=["POST"])
+@check_authenticated
 def delete_follow_request(sender_id):
     req = Request.query.get_or_404([sender_id, g.user.id])
 
