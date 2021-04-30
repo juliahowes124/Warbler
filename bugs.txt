@@ -5,10 +5,8 @@ test_user_view.py:
 -bad_signup_test: had to db.session.rollback before querying for user
 
 TODO:
--route cancel button on edit form- currently breaks 
 -in app.py, signup- if duplicate email, should flash email already exists instead of username
 -figure out how to add forms.html to edit.html if possible
--message card click thing
 -macros for forms
 
 TODO ROUTES FOR TESTING:
@@ -26,11 +24,6 @@ CODE REVIEW THINGS WE LEARNED:
 -put with self.assertRaises(IntegrityError):
     lines that would fail in here
 -split up tearDown and setUp, maybe put db.session.rollback() and remove user from db in teardown instead of setup 
-
-
-Front end:
-
-
 
 
 -likes FK constraint failed --> if no cascade on delete when user is deleted

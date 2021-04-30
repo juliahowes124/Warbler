@@ -55,7 +55,6 @@ def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
     g.form = MessageForm()
 
-#TODO: USE session.get(CURR_USER_KEY)?
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
@@ -257,7 +256,7 @@ def profile(user_id):
             user.header_image_url = form.header_image_url.data or None
             user.bio = form.bio.data
             user.is_private = form.is_private.data
-            user.is_admin = form.admin_password == ADMINPASSWORD
+            user.is_admin = form.admin_password.data == ADMINPASSWORD
 
             db.session.commit()
 

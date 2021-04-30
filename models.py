@@ -62,7 +62,6 @@ class Like(db.Model):
         primary_key=True,
     )
 
-
 class User(db.Model):
     """User in the system."""
 
@@ -118,7 +117,10 @@ class User(db.Model):
         default=False
     )
 
-    messages = db.relationship('Message', order_by='Message.timestamp.desc()')
+    messages = db.relationship('Message',
+                               order_by='Message.timestamp.desc()',
+                               cascade="all,delete",
+                               backref="user")
 
     liked_messages = db.relationship('Message', secondary="likes")
 
@@ -236,7 +238,6 @@ class Message(db.Model):
         nullable=False,
     )
 
-    user = db.relationship('User')
     likers = db.relationship('User', secondary="likes")
 
     def __repr__(self):
