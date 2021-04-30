@@ -55,6 +55,7 @@ def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
     g.form = MessageForm()
 
+#TODO: USE session.get(CURR_USER_KEY)?
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
@@ -102,7 +103,7 @@ def signup():
             db.session.commit()
 
         except IntegrityError:
-            flash("Username already taken", 'danger')
+            flash("Username already exists!", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
@@ -125,7 +126,7 @@ def login():
     
         if user:
             do_login(user)
-            flash(f"Hello, {user.username}!", "success")
+            flash(f"Welcome, {user.username}!", "success")
             return redirect("/")
 
         flash("Invalid credentials.", 'danger')
@@ -137,7 +138,7 @@ def login():
 def logout():
     """Handle logout of user."""
     do_logout()
-    flash("Successfully logged out.")
+    flash("Logged out.", "success")
 
     return redirect("/login")
 
@@ -170,26 +171,42 @@ def users_show(user_id):
     is_self = g.user and user.id == g.user.id
     is_following = g.user and g.user.is_following(user)
     is_public = user.is_private
-    can_view = is_self or is_following or is_public
+    is_admin = g.user.is_admin
+    can_view = is_self or is_following or is_public or is_admin
 
     return render_template('users/show.html', user=user, can_view=can_view)
     
 
-#TODO DONT SHOW FOLLOWING IF PRIVATE ACCOUNT AND NOT FOLLOWING
 @app.route('/users/<int:user_id>/following')
 @check_authenticated
 def show_following(user_id):
     """Show list of people this user is following."""
+
     user = User.query.get_or_404(user_id)
+    is_self = g.user and user.id == g.user.id
+    is_following = g.user and g.user.is_following(user)
+    is_public = user.is_private
+
+    if not is_self and not is_following and not is_public:
+        flash("Not authorized!", "danger")
+        return redirect(f"/users/{user_id}")
+
     return render_template('users/following.html', user=user)
 
 
-#TODO DONT SHOW FOLLOWERS IF PRIVATE ACCOUNT AND NOT FOLLOWING
 @app.route('/users/<int:user_id>/followers')
-@check_authenticated
 def users_followers(user_id):
     """Show list of followers of this user."""
     user = User.query.get_or_404(user_id)
+
+    is_self = g.user and user.id == g.user.id
+    is_following = g.user and g.user.is_following(user)
+    is_public = user.is_private
+
+    if not is_self and not is_following and not is_public:
+        flash("Not authorized!", "danger")
+        return redirect(f"/users/{user_id}")
+
     return render_template('users/followers.html', user=user)
 
 
@@ -200,8 +217,7 @@ def add_follow(follow_id):
 
     followed_user = User.query.get_or_404(follow_id)
     
-    # FIX THIS LATER - RM NOT!!!!!
-    if not followed_user.is_private:
+    if followed_user.is_private:
         g.user.following_requests.append(followed_user)
         db.session.commit()
         return redirect(f"/users/{follow_id}")
@@ -223,7 +239,7 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
-#TODO: ALLOW TO MAKE USER ADMIN WITH ADMIN PASSWORD, UPDATE ROUTE IN TEMPLATE
+
 @app.route('/users/<int:user_id>/profile', methods=["GET", "POST"])
 @check_authenticated
 @check_correct_user_or_admin
@@ -240,6 +256,7 @@ def profile(user_id):
             user.image_url = form.image_url.data or None
             user.header_image_url = form.header_image_url.data or None
             user.bio = form.bio.data
+            user.is_admin = form.admin_password == ADMINPASSWORD
 
             db.session.commit()
 
@@ -250,7 +267,6 @@ def profile(user_id):
     return render_template("/users/edit.html", form=form)
 
 
-#TODO: UPDATE ROUTE IN TEMPLATE
 @app.route('/users/<int:user_id>/delete', methods=["POST"])
 @check_authenticated
 @check_correct_user_or_admin
@@ -293,16 +309,23 @@ def messages_add():
         return redirect(f"/users/{g.user.id}")
 
 
-#TODO ONLY ALLOW ADMINS OR FOLLOWERS OR IF PUBLIC
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
-
     msg = Message.query.get(message_id)
+
+    is_self = g.user and msg.user.id == g.user.id
+    is_following = g.user and g.user.is_following(msg.user)
+    is_public = msg.user.is_private
+    is_admin = g.user.is_admin
+
+    if not is_self and not is_following and not is_public and not is_admin:
+        flash("Not authorized!", "danger")
+        return redirect('/')
+
     return render_template('messages/show.html', message=msg)
 
 
-#TODO UPDATE ROUTE IN TEMPLATES
 @app.route('/users/<int:user_id>/messages/<int:message_id>/delete', methods=["POST"])
 @check_authenticated
 @check_correct_user_or_admin
@@ -316,7 +339,7 @@ def messages_destroy(user_id, message_id):
 
     return redirect(f"/users/{g.user.id}")
 
-#TODO ONLY ALLOW ADMINS OR FOLLOWERS OR IF PUBLIC
+
 @app.route('/messages/<int:message_id>/likes', methods=['POST'])
 @check_authenticated
 def add_liked_message(message_id):
@@ -325,24 +348,32 @@ def add_liked_message(message_id):
     message = Message.query.get(message_id)
 
     if message.user.id == g.user.id:
-        flash("Can't like your own messages!", "danger")
+        flash("You can't like your own messages!", "danger")
         return redirect("/")
 
     if message in g.user.liked_messages:
         g.user.liked_messages.remove(message)
         db.session.commit()
-        flash('Message unliked!')
     else:
         g.user.liked_messages.append(message)
         db.session.commit()
-        flash('Message liked!')
     
     return redirect('/')
 
-#TODO ONLY ALLOW ADMINS OR FOLLOWERS OR IF PUBLIC
+
 @app.route('/users/<int:user_id>/likes')
 def show_liked_messages(user_id):
     user = User.query.get_or_404(user_id)
+
+    is_self = g.user and user.id == g.user.id
+    is_following = g.user and g.user.is_following(user)
+    is_public = user.is_private
+    is_admin = g.user.is_admin
+
+    if not is_self and not is_following and not is_public and not is_admin:
+        flash("Not authorized!", "danger")
+        return redirect('/')
+
     return render_template('users/likes.html', user=user)   
 
 
