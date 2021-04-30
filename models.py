@@ -27,6 +27,24 @@ class Follow(db.Model):
     )
 
 
+class Block(db.Model):
+    """blocker user <-> blockee user"""
+
+    __tablename__ = 'blocks'
+
+    blockee = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    blocker = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+
 class Request(db.Model):
     """ follow request from sender to recipient """
 
@@ -124,6 +142,11 @@ class User(db.Model):
 
     liked_messages = db.relationship('Message', secondary="likes")
 
+    blocked_users = db.relationship('User',
+                                    secondary="blocks",
+                                    primaryjoin=(Block.blocker == id),
+                                    secondaryjoin=(Block.blockee == id))
+
     followers = db.relationship(
         "User",
         secondary="follows",
@@ -171,6 +194,11 @@ class User(db.Model):
         """ Is this user waiting for other_user to accept follow request? """
         found_user_list = [user for user in self.following_requests if user == other_user]
         return len(found_user_list) == 1
+
+    def is_blocking(self, other_user):
+        """ Is this user blocking the other_user? """
+        blocked_user_list = [user for user in self.blocked_users if user == other_user]
+        return len(blocked_user_list) == 1
 
     @classmethod
     def signup(cls, username, email, password, image_url, is_admin):

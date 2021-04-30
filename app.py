@@ -288,6 +288,25 @@ def delete_user(user_id):
 def show_notifications():
     return render_template('users/notifications.html', user=g.user)  
 
+
+@app.route('/users/block/<int:user_id>', methods=["POST"])
+@check_authenticated
+def block_user(user_id):
+    user = User.query.get_or_404(user_id)
+    g.user.blocked_users.append(user)
+    db.session.commit()
+    return redirect(f"/users/{user_id}")
+
+
+@app.route('/users/unblock/<int:user_id>', methods=["POST"])
+@check_authenticated
+def unblock_user(user_id):
+    user = User.query.get_or_404(user_id)
+    g.user.blocked_users.remove(user)
+    db.session.commit()
+    return redirect(f"/users/{user_id}")
+
+
 ##############################################################################
 # Messages routes:
 
