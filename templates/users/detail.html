@@ -33,9 +33,7 @@
                     <button class="btn btn-outline-primary">Follow</button>
                   </form>
                 {% endif %}
-              {% endif %}
-
-              {% if g.user and g.user.is_blocking(user) %}
+                {% if g.user and g.user.is_blocking(user) %}
                   <form method="POST" action="/users/unblock/{{ user.id }}">
                     <button class="btn btn-outline-warning">Unblock</button>
                   </form>
@@ -44,6 +42,7 @@
                     <button class="btn btn-warning">Block</button>
                   </form>
                 {% endif %}
+              {% endif %}
             </div>
           </ul>
         </div>

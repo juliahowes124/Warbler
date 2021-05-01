@@ -54,7 +54,7 @@ def check_if_blocked(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         user = User.query.get(kwargs.get("user_id"))
-        if g.user.is_blocked(user):
+        if g.user.is_blocked(user) and not g.user.is_admin:
             flash("This user has blocked you.", "warning")
             return redirect("/users")
         return func(*args, **kwargs)
