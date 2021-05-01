@@ -4,7 +4,9 @@
     {% from 'cards.html' import message_card %}
     {% if can_view %}
       {{ message_card(user.messages)}}
-    {% else %}
+    {% elif g.user.is_blocked(user) %}
+      This user has blocked you.
+    {% elif user.is_private %}
       This user's account is private.
     {% endif %}
   </div>

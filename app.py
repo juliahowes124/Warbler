@@ -50,6 +50,17 @@ def check_correct_user_or_admin(func):
     return wrap
 
 
+def check_if_blocked(func):
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        user = User.query.get(kwargs.get("user_id"))
+        if g.user.is_blocked(user):
+            flash("This user has blocked you.", "warning")
+            return redirect("/users")
+        return func(*args, **kwargs)
+    return wrap
+
+
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -162,6 +173,8 @@ def list_users():
 
 
 @app.route('/users/<int:user_id>')
+@check_authenticated
+@check_if_blocked
 def users_show(user_id):
     """Show user profile."""
 
@@ -178,6 +191,7 @@ def users_show(user_id):
 
 @app.route('/users/<int:user_id>/following')
 @check_authenticated
+@check_if_blocked
 def show_following(user_id):
     """Show list of people this user is following."""
 
@@ -194,6 +208,8 @@ def show_following(user_id):
 
 
 @app.route('/users/<int:user_id>/followers')
+@check_authenticated
+@check_if_blocked
 def users_followers(user_id):
     """Show list of followers of this user."""
     user = User.query.get_or_404(user_id)
@@ -209,17 +225,18 @@ def users_followers(user_id):
     return render_template('users/followers.html', user=user)
 
 
-@app.route('/users/follow/<int:follow_id>', methods=['POST'])
+@app.route('/users/follow/<int:user_id>', methods=['POST'])
 @check_authenticated
-def add_follow(follow_id):
+@check_if_blocked
+def add_follow(user_id):
     """Add a follow for the currently-logged-in user."""
 
-    followed_user = User.query.get_or_404(follow_id)
+    followed_user = User.query.get_or_404(user_id)
     
     if followed_user.is_private:
         g.user.following_requests.append(followed_user)
         db.session.commit()
-        return redirect(f"/users/{follow_id}")
+        return redirect(f"/users/{user_id}")
 
     g.user.following.append(followed_user)
     db.session.commit()
@@ -294,6 +311,15 @@ def show_notifications():
 def block_user(user_id):
     user = User.query.get_or_404(user_id)
     g.user.blocked_users.append(user)
+    if g.user.is_followed_by(user):
+        g.user.followers.remove(user)
+    if g.user.is_following(user):
+        g.user.following.remove(user)
+    if g.user.is_pending_follow(user):
+        g.user.following_requests.remove(user)
+    if g.user.has_pending_follower(user):
+        g.user.follower_requests.remove(user)
+    
     db.session.commit()
     return redirect(f"/users/{user_id}")
 

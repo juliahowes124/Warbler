@@ -195,9 +195,19 @@ class User(db.Model):
         found_user_list = [user for user in self.following_requests if user == other_user]
         return len(found_user_list) == 1
 
+    def has_pending_follower(self, other_user):
+        """ Is other_user waiting for this user to accept follow request? """
+        found_user_list = [user for user in self.follower_requests if user == other_user]
+        return len(found_user_list) == 1
+
     def is_blocking(self, other_user):
         """ Is this user blocking the other_user? """
         blocked_user_list = [user for user in self.blocked_users if user == other_user]
+        return len(blocked_user_list) == 1
+
+    def is_blocked(self, other_user):
+        """ Is this user blocked by other_user? """
+        blocked_user_list = [user for user in other_user.blocked_users if user == self]
         return len(blocked_user_list) == 1
 
     @classmethod
