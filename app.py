@@ -232,19 +232,19 @@ def add_follow(user_id):
     """Add a follow for the currently-logged-in user."""
 
     followed_user = User.query.get_or_404(user_id)
-    
+
     if g.user.is_blocking(followed_user):
-        return redirect("/users")
+        return redirect(request.referrer)
     
     if followed_user.is_private:
         g.user.following_requests.append(followed_user)
         db.session.commit()
-        return redirect(f"/users/{user_id}")
+        return redirect(request.referrer)
 
     g.user.following.append(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(request.referrer)
 
 
 @app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
@@ -256,7 +256,7 @@ def stop_following(follow_id):
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(request.referrer)
 
 
 @app.route('/users/<int:user_id>/profile', methods=["GET", "POST"])
@@ -296,11 +296,13 @@ def delete_user(user_id):
 
     if g.user.id == user.id:
         do_logout()
-
-    db.session.delete(user)
-    db.session.commit()
-
-    return redirect("/signup")
+        db.session.delete(user)
+        db.session.commit()
+        return redirect("/signup")
+    else:
+        db.session.delete(user)
+        db.session.commit()
+        return redirect("/users")
 
 
 @app.route('/notifications')
@@ -313,6 +315,9 @@ def show_notifications():
 @check_authenticated
 def block_user(user_id):
     user = User.query.get_or_404(user_id)
+    if g.user == user:
+        return redirect('/')
+
     g.user.blocked_users.append(user)
     if g.user.is_followed_by(user):
         g.user.followers.remove(user)

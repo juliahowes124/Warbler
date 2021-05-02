@@ -52,7 +52,11 @@
 
   <div class="row">
     <div class="col-sm-3">
-      <h4 id="sidebar-username">@{{ user.username }}</h4>
+      <h4 id="sidebar-username">@{{ user.username }}
+      {% if g.user.is_admin and g.user == user %}
+      <div class="badge badge-success">ADMIN</div>
+      {% endif %}
+      </h4>
       <p>{{user.bio}}</p>
       <p class="user-location"><span class="fa fa-map-marker"></span>{{user.location}}</p>
     </div>
