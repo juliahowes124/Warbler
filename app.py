@@ -167,7 +167,7 @@ def list_users():
     if not search:
         users = User.query.all()
     else:
-        users = User.query.filter(User.username.like(f"%{search}%")).all()
+        users = User.query.filter(User.username.ilike(f"%{search}%")).all()
 
     return render_template('users/index.html', users=users)
 
@@ -264,12 +264,12 @@ def stop_following(follow_id):
 @check_correct_user_or_admin
 def profile(user_id):
     """Update profile for current user."""
-    user = g.user
+    user = User.query.get_or_404(user_id)
     form = UserEditForm(obj=user)
 
     if form.validate_on_submit():
-        user = User.authenticate(user.username, form.password.data)
-        if user:
+        is_authorized = User.authenticate(g.user.username, form.password.data)
+        if is_authorized:
             user.username = form.username.data
             user.email = form.email.data
             user.image_url = form.image_url.data or None
