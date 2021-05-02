@@ -16,7 +16,7 @@ class UserAddForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=6)])
     image_url = StringField('(Optional) Image URL')
-    admin_password = PasswordField('Admin Password')
+    admin_password = PasswordField('(Optional) Admin Password')
 
 
 class LoginForm(FlaskForm):
@@ -35,5 +35,5 @@ class UserEditForm(FlaskForm):
     header_image_url = StringField('(Optional) Image URL')
     bio = TextAreaField('Bio')
     is_private = BooleanField('Private Account')
-    admin_password = PasswordField('Admin Password')
+    admin_password = PasswordField('(Optional) Admin Password')
     password = PasswordField('Password', validators=[Length(min=6)])
