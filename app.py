@@ -233,6 +233,9 @@ def add_follow(user_id):
 
     followed_user = User.query.get_or_404(user_id)
     
+    if g.user.is_blocking(followed_user):
+        return redirect("/users")
+    
     if followed_user.is_private:
         g.user.following_requests.append(followed_user)
         db.session.commit()
