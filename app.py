@@ -7,9 +7,9 @@ from functools import wraps
 
 from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
 from models import db, connect_db, User, Message, Like, Request
-from admin import ADMINPASSWORD
 
 CURR_USER_KEY = "curr_user"
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'unknown password')
 
 app = Flask(__name__)
 
@@ -99,7 +99,7 @@ def signup():
     """
 
     form = UserAddForm()
-
+    
     if form.validate_on_submit():
         try:
             user = User.signup(
@@ -107,13 +107,13 @@ def signup():
                 password=form.password.data,
                 email=form.email.data,
                 image_url=form.image_url.data or User.image_url.default.arg,
-                is_admin=form.admin_password.data == ADMINPASSWORD 
+                is_admin=form.admin_password.data == ADMIN_PASSWORD 
             )
             db.session.add(user)
             db.session.commit()
 
         except IntegrityError:
-            flash("Username already exists!", 'danger')
+            flash("Username or email already exists!", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
@@ -264,7 +264,7 @@ def stop_following(follow_id):
 @check_correct_user_or_admin
 def profile(user_id):
     """Update profile for current user."""
-    
+
     user = User.query.get_or_404(user_id)
     form = UserEditForm(obj=user)
 
@@ -277,7 +277,7 @@ def profile(user_id):
             user.header_image_url = form.header_image_url.data or None
             user.bio = form.bio.data
             user.is_private = form.is_private.data
-            user.is_admin = form.admin_password.data == ADMINPASSWORD
+            user.is_admin = form.admin_password.data == ADMIN_PASSWORD
 
             db.session.commit()
 
