@@ -1,6 +1,8 @@
 app.py - postresql connection
 -'postgresql:///warbler' instead of 'postgres:///warbler'
 
+FOR HEROKU DEPLOYMENT ADD --preload FLAG TO PROCFILE SO IT GIVES DETAILS OF ERROR
+--> FOR EXAMPLE RECENT ERROR WAS THAT IT COULDN'T ACCESS ADMINPASSWORD IN UNTRACKED admin.py FILE, HAD TO SET TO HEROKU CONFIG VAR
 test_user_view.py:
 -bad_signup_test: had to db.session.rollback before querying for user
 
