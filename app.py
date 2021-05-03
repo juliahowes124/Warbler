@@ -264,6 +264,7 @@ def stop_following(follow_id):
 @check_correct_user_or_admin
 def profile(user_id):
     """Update profile for current user."""
+    
     user = User.query.get_or_404(user_id)
     form = UserEditForm(obj=user)
 
