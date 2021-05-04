@@ -52,19 +52,19 @@
         <li><a href="/signup">Sign up</a></li>
         <li><a href="/login">Log in</a></li>
       {% else %}
+      <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#exampleModalCenter">
+        New Warble</button>
         <li>
           <a href="/notifications">
             Notifications
           </a>
         </li>
+        <li><a href="/logout">Log out</a></li>
         <li>
           <a href="/users/{{ g.user.id }}">
             <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
           </a>
         </li>
-        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#exampleModalCenter">
-          New Warble</button>
-        <li><a href="/logout">Log out</a></li>
       {% endif %}
 
     </ul>
