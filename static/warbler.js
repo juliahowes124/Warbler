@@ -7,12 +7,16 @@ $heartIcon.on('click', async (evt) => {
 })
 
 function toggleIcon($icon) {
+    let numLikes = +$('.stat-likes').text();
+    let path = window.location.pathname;
     if($icon.hasClass('far')) {
         $icon.removeClass('far')
         $icon.addClass('fas')
+        if(path === '/') $('.stat-likes').text(numLikes + 1);
     } else {
-        $icon.removeClass('fas')
-        $icon.addClass('far')
+        $icon.removeClass('fas');
+        $icon.addClass('far');
+        if(path === '/') $('.stat-likes').text(numLikes - 1);
     }
 }
 
