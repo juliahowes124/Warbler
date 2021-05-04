@@ -183,7 +183,7 @@ nav + .container {
 }
 
 #warbler-hero {
-  height: 360px;
+  height: calc(150px + 10vw);
   margin-top: -16px;
   opacity: 0.7;
   background-size: cover;
