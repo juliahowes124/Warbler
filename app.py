@@ -391,7 +391,7 @@ def messages_destroy(user_id, message_id):
     db.session.delete(msg)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}")
+    return redirect("/")
 
 
 @app.route('/messages/<int:message_id>/likes', methods=['POST'])

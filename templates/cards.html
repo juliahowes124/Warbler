@@ -16,9 +16,9 @@
       </span>
       {% if message.user.id != g.user.id %}
         {% if message in g.user.liked_messages %}
-          <i class="fas fa-heart" data-msgid={{message.id}}></i>
+          <i class="fas fa-heart m-1" data-msgid={{message.id}}></i>
         {% else %}
-          <i class="far fa-heart" data-msgid={{message.id}}></i>
+          <i class="far fa-heart m-1" data-msgid={{message.id}}></i>
         {% endif %}
       {% endif %}
       <p>{{ message.text }}</p>

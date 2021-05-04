@@ -215,7 +215,6 @@ nav + .container {
 }
 
 .user-stats > .ml-auto .btn {
-  min-width: 105px;
   padding: 6px 16px;
 }
 
@@ -248,6 +247,7 @@ nav + .container {
 .fa-heart {
   position: absolute;
   z-index: 1;
+  cursor: pointer;
 }
 
 #messages .message-link {
