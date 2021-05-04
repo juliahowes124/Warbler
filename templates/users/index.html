@@ -4,11 +4,9 @@
     <h3>Sorry, no users found</h3>
   {% else %}
     <div class="row justify-content-end">
-      <div class="col-sm-9">
-        <div class="row">
-          {% from 'cards.html' import user_card %}
-          {{user_card(users)}}
-        </div>
+      <div class="row">
+        {% from 'cards.html' import user_card %}
+        {{user_card(users)}}
       </div>
     </div>
   {% endif %}

@@ -11,15 +11,6 @@ body.error-404 {
 .form-control {
   margin-bottom: 20px;
 }
-
-.btn {
-  border-radius: 50px;
-}
-
-.btn:hover {
-  cursor: pointer;
-}
-
 /* ======================= Nav */
 
 .navbar {
@@ -109,12 +100,7 @@ nav form.navbar-form {
  */
 
 .onboarding > .navbar {
-  background-image: url("/static/images/nav-bg.png");
-  background-size: 100% 100%;
-}
-
-.onboarding .navbar-header {
-  margin: 0 auto;
+  background-color: gray;
 }
 
 .onboarding .navbar-brand {
@@ -435,7 +421,6 @@ p.card-bio {
 
 #home-aside > .user-card {
   margin-top: 0;
-  overflow: hidden;
 }
 
 #home-aside > .user-card .card-link {

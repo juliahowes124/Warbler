@@ -35,7 +35,7 @@ def check_authenticated(func):
     def wrap(*args, **kwargs):
         if not g.user:
             flash("Access unauthorized.", "danger")
-            return redirect("/")
+            return redirect(request.referrer)
         return func(*args, **kwargs)
     return wrap
 
@@ -45,7 +45,7 @@ def check_correct_user_or_admin(func):
     def wrap(*args, **kwargs):
         if not g.user.is_admin and kwargs.get("user_id") != g.user.id:
             flash("Access unauthorized.", "danger")
-            return redirect("/")
+            return redirect(request.referrer)
         return func(*args, **kwargs)
     return wrap
 
