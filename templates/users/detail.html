@@ -15,9 +15,9 @@
             {% endwith %}
             <div class="ml-auto">
               {% if g.user.id == user.id or g.user.is_admin %}
-                <a href="/users/{{user.id}}/profile" class="btn btn-outline-secondary">Edit</a>
+                <a href="/users/{{user.id}}/profile" class="btn btn-outline-secondary mx-3">Edit</a>
                 <form method="POST" action="/users/{{ user.id }}/delete" class="form-inline">
-                  <button class="btn btn-outline-danger ml-2">Delete</button>
+                  <button class="btn btn-outline-danger">Delete</button>
                 </form>
               {% elif g.user %}
                 {% if g.user.is_following(user) %}
@@ -54,7 +54,7 @@
     <div class="col-sm-3">
       <h4 id="sidebar-username">@{{ user.username }}
       {% if g.user.is_admin and g.user == user %}
-      <div class="badge badge-success">ADMIN</div>
+      <div class="badge badge-success bg-success">ADMIN</div>
       {% endif %}
       </h4>
       <p>{{user.bio}}</p>

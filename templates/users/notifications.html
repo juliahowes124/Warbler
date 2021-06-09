@@ -3,17 +3,22 @@
   <div class="col-sm-6">
     <ul class="list-group" id="messages">
 
+      {% if not g.user.follower_requests %}
+        <p>No Notifications</p>
+      {% endif %}
       {% for request in g.user.follower_requests %}
 
         <li class="list-group-item">
-          <div class="message-area">
+          <div class="message-area d-flex justify-content-between w-100 align-items-center">
             <div>@{{ request.username }}</div>
-            <form method="POST" action="/requests/accept/{{request.id}}">
-                <button>Accept</button>
-            </form>
-            <form method="POST" action="/requests/delete/{{request.id}}">
-                <button>Delete</button>
-            </form>
+            <div>
+              <form method="POST" action="/requests/accept/{{request.id}}" class="d-inline">
+                  <button class="btn btn-primary">Accept</button>
+              </form>
+              <form method="POST" action="/requests/delete/{{request.id}}" class="d-inline">
+                  <button class="btn btn-danger">Delete</button>
+              </form>
+            </div>
           </div>
         </li>
 

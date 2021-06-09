@@ -93,40 +93,6 @@ nav form.navbar-form {
   border: 2px solid #007bff;
 }
 
-/* on "onboarding" pages (signup & login), the navbar is
-   different: no search box, the logo is centered, and it has
-   a background color.
- */
-
-.onboarding > .navbar {
-  background-color: gray;
-}
-
-.onboarding .navbar-brand {
-  margin: 0;
-}
-
-.onboarding .navbar-brand span {
-  display: none;
-}
-
-.onboarding .nav.navbar-nav.navbar-right {
-  position: absolute;
-  right: 16px;
-}
-
-.onboarding > .navbar a {
-  color: #fff;
-}
-
-.onboarding > .navbar form.navbar-form {
-  display: none;
-}
-
-.onboarding {
-  background-color: #fff;
-}
-
 @media (max-width: 468px) {
   nav form.navbar-form {
     display: none;
