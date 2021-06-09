@@ -1,4 +1,6 @@
 $heartIcon = $('.fa-heart')
+$newWarbleBtn = $('#new-warble')
+$closeWarbleBtn = $('#close-warble')
 
 $heartIcon.on('click', async (evt) => {
     let msgId = $(evt.target).data('msgid')
@@ -21,7 +23,10 @@ function toggleIcon($icon) {
 }
 
 
-//add event listener for new message button
-//on click, get request? to show form modal, append form to modal
-//form on submit- post to messages/new 
-//request route to get form info to send back form data to append to modal
+$newWarbleBtn.on('click', () => {
+    $('#exampleModalCenter').show();
+})
+
+$closeWarbleBtn.on('click', () => {
+    $('#exampleModalCenter').hide();
+})
