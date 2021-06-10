@@ -100,7 +100,7 @@ class UserModelTestCase(TestCase):
 
     def test_signup(self):
         """successfully signs a user up"""
-        response = User.signup("user3","user@hotmail.com,","pword", "google.com")
+        response = User.signup("user3","user@hotmail.com,","pword", "google.com", False)
         db.session.add(response)
         db.session.commit()
 
@@ -110,7 +110,7 @@ class UserModelTestCase(TestCase):
     
     def test_invalid_email_signup(self):
         """tests invalid signup data"""
-        bad_response = User.signup("user3",None, "pword", "google.com")
+        bad_response = User.signup("user3", None, "pword", "google.com", False)
         
         db.session.add(bad_response)
 
@@ -119,7 +119,7 @@ class UserModelTestCase(TestCase):
 
         db.session.rollback()
         #tests for duplicate email
-        bad_response2 = User.signup("testuser1", "user3@gmail.com", "pword", "google.com")
+        bad_response2 = User.signup("testuser1", "user3@gmail.com", "pword", "google.com", False)
         
         db.session.add(bad_response2)
 

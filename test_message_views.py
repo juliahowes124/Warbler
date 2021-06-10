@@ -46,12 +46,14 @@ class MessageViewTestCase(TestCase):
         user = User.signup(username="testuser",
                                     email="test@test.com",
                                     password="testuser",
-                                    image_url=None)
+                                    image_url=None,
+                                    is_admin=False)
 
         user2 = User.signup(username="testuser2",
                                     email="test2@test.com",
                                     password="testuser",
-                                    image_url=None)
+                                    image_url=None,
+                                    is_admin=False)
 
         db.session.add(user)
         db.session.add(user2)
@@ -86,13 +88,14 @@ class MessageViewTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
 
+            print('ORIGINAL MESSAGE LENGTH: ', len(Message.query.all()))
             msg = Message(text="test message", user_id=self.testuser.id)
             db.session.add(msg)
             db.session.commit()
             msg_id = Message.query.one().id
             resp = c.post(f"/messages/{msg_id}/delete")
 
-            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(resp.status_code, 200)
             self.assertEqual(len(Message.query.all()), 0)
     
     def test_add_message_if_loggedout(self):

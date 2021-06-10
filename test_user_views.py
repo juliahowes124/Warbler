@@ -50,12 +50,14 @@ class UserViewTestCase(TestCase):
         user = User.signup(username="testuser",
                                     email="test@test.com",
                                     password="testuser",
-                                    image_url=None)
+                                    image_url=None,
+                                    is_admin=False)
 
         user2 = User.signup(username="testuser2",
                                     email="test2@test.com",
                                     password="testuser2",
-                                    image_url=None)
+                                    image_url=None,
+                                    is_admin=False)
         
         db.session.add(user)
         db.session.add(user2)
@@ -100,7 +102,7 @@ class UserViewTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
-            self.assertIn("Username already taken", html)
+            self.assertIn("Username or email already exists!", html)
             db.session.rollback()
             self.assertEqual(len(User.query.all()), 2)
             with c.session_transaction() as sess:
@@ -132,7 +134,7 @@ class UserViewTestCase(TestCase):
 
             html = resp.get_data(as_text=True)
 
-            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.status_code, 302)
             self.assertIn('<p class="small">Following</p>', html)
     
     def test_user_loggedout_followers(self):
@@ -146,20 +148,21 @@ class UserViewTestCase(TestCase):
     def test_invalid_user_page(self):
         invalid_user_id = self.testuser2.id + 1
         with self.client as c:
-            resp=c.get(f'/users/{invalid_user_id}', follow_redirects=True)
-
-            self.assertEqual(resp.status_code, 404)
-    
-    def test_user_logout(self)
-        with self.client as c:
-                with c.session_transaction() as sess:
-                    sess[CURR_USER_KEY] = self.testuser.id
-        
-            resp=c.get("/logout", follow_redirects=True)
+            resp = c.get(f'/users/{invalid_user_id}', follow_redirects=True)
 
             html = resp.get_data(as_text=True)
+            self.assertIn("ERROR 404",html)
+    
+    def test_user_logout(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+    
+                resp = c.get("/logout", follow_redirects=True)
+
+                html = resp.get_data(as_text=True)
             
-            self.assertIn("Successfully logged out.",html)
+                self.assertIn("Logged out.", html)
             with c.session_transaction() as sess:
                 self.assertEqual(sess.get(CURR_USER_KEY), None)
     
@@ -175,7 +178,7 @@ class UserViewTestCase(TestCase):
             with c.session_transaction() as sess:
                 self.assertEqual(sess.get(CURR_USER_KEY), self.testuser.id)
 
-            self.assertIn("Hello, testuser!", html)
+            self.assertIn("Welcome, testuser!", html)
             self.assertEqual(resp.status_code, 200)
     
     def test_user_invalid_password_login(self):
@@ -186,7 +189,7 @@ class UserViewTestCase(TestCase):
             })
 
             html = resp.get_data(as_text=True)
-            self.assertIn("Invalid Credentials.", html)
+            self.assertIn("Invalid credentials.", html)
             self.assertEqual(resp.status_code, 200)
             with c.session_transaction() as sess:
                 self.assertEqual(sess.get(CURR_USER_KEY), None)
