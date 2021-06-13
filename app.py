@@ -360,7 +360,7 @@ def messages_add():
         g.user.messages.append(msg)
         db.session.commit()
 
-        return redirect(f"/users/{g.user.id}")
+        return redirect(f"/")
 
 
 @app.route('/messages/<int:message_id>', methods=["GET"])

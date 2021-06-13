@@ -213,6 +213,7 @@ nav + .container {
   position: absolute;
   z-index: 1;
   cursor: pointer;
+  margin-left: .5rem;
 }
 
 #messages .message-link {
